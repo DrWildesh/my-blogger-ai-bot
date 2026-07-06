@@ -8,15 +8,26 @@ on:
 jobs:
   run-network:
     runs-on: ubuntu-latest
+    
+    # Bypasses the Node 24 runtime constraint until your actions natively patch it
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+
     steps:
       - name: Sync Repo
         uses: actions/checkout@v4
+
       - name: Initialize Runtime
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip' # Speeds up your hourly run by caching the Google Suite packages
+
       - name: Install Google Suite and Gemini Libraries
-        run: pip install google-generativeai google-api-python-client google-auth-httplib2 google-auth
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-generativeai google-api-python-client google-auth-httplib2 google-auth
+
       - name: Execute Routing Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
