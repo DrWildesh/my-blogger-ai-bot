@@ -1,0 +1,24 @@
+name: Staggered Multi-Blog AI Network
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs systematically every 60 minutes, 24/7
+  workflow_dispatch:
+
+jobs:
+  run-network:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync Repo
+        uses: actions/checkout@v4
+      - name: Initialize Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Google Suite and Gemini Libraries
+        run: pip install google-generativeai google-api-python-client google-auth-httplib2 google-auth
+      - name: Execute Routing Script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python main.py
