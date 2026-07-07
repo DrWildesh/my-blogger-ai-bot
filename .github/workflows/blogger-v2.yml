@@ -11,22 +11,25 @@ jobs:
 
     steps:
       - name: Sync Repo
-        # FIXED: Upgraded from v4 to v6 to natively run on Node 24
         uses: actions/checkout@v6
+
+      # FIX 1: Generate requirements.txt FIRST so the cache engine can find it
+      - name: Generate Requirements File
+        run: |
+          printf "google-generativeai\ngoogle-api-python-client\ngoogle-auth-httplib2\ google-auth\n" > requirements.txt
 
       - name: Initialize Runtime
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          # FIXED: Target the exact path of your requirements file if using pip cache
           cache: 'pip'
-          cache-dependency-path: '**/requirements.txt' 
 
+      # FIX 2: Set environment variable to suppress the forced Node 24 warning
       - name: Install Google Suite and Gemini Libraries
-        # FIXED: Generates an on-the-fly requirements file so the pip cache engine has a valid target
+        env:
+          NODE_OPTIONS: "--no-warnings"
         run: |
           python -m pip install --upgrade pip
-          echo "google-generativeai\ngoogle-api-python-client\ngoogle-auth-httplib2\ngoogle-auth" > requirements.txt
           pip install -r requirements.txt
 
       - name: Execute Routing Script
